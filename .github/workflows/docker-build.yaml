@@ -20,7 +20,7 @@ jobs:
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Docker image
-        run: docker push server
+        run: docker push ${{ secrets.DOCKER_USERNAME }/server
 
       - name: SSH into remote server
         uses: appleboy/ssh-action@v1.0.3
