@@ -68,4 +68,19 @@ router.get('/all', async (req, res) => {
     }
   });
 
+  app.post('/delete', async (req, res) => {
+    try {
+      const { id } = req.body; // Get the product ID from the request body
+      const result = await Product.findByIdAndDelete(id);
+  
+      if (result) {
+        res.status(200).send({ message: 'Product deleted successfully', deletedProduct: result });
+      } else {
+        res.status(404).send({ message: 'Product not found' });
+      }
+    } catch (error) {
+      res.status(500).send({ message: 'Error deleting product', error: error.message });
+    }
+  });
+
 module.exports = router;
