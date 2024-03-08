@@ -7,15 +7,15 @@ const orderSchema = new mongoose.Schema({
   products: [
     {
       id: { type: String, required: true },
-      quantity: { type: Number, required: true },
-      price: { type: Number, required: true },
+      quantity: { type: String, required: true },
+      price: { type: String, required: true },
       name: { type: String, required: true },
     },
   ],
   paymentStatus: { type: String, required: true },
-  total: { type: Number, required: true },
+  total: { type: String, required: true },
   status: { type: String, required: true },
-  shipping: { type: Number, required: true },
+  shipping: { type: String, required: true },
   box: { type: Boolean, required: true },
 });
 
