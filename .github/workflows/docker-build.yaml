@@ -16,6 +16,9 @@ jobs:
       - name: Build Docker image
         run: docker build -t server .
 
+      - name: Tag Docker image
+        run: docker tag server ${{ secrets.DOCKER_USERNAME }}/server
+
       - name: Log in to Docker Hub (or your registry)
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
