@@ -68,7 +68,7 @@ router.get('/all', async (req, res) => {
     }
   });
 
-  app.post('/delete', async (req, res) => {
+  router.post('/delete', async (req, res) => {
     try {
       const { id } = req.body; // Get the product ID from the request body
       const result = await Product.findByIdAndDelete(id);
