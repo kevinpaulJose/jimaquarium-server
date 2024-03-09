@@ -20,4 +20,4 @@ RUN npm install pm2 -g
 CMD pm2 start process.yml && tail -f /dev/null
 
 # Exposing server port
-EXPOSE 3000
+EXPOSE 1212
