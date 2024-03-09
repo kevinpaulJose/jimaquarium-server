@@ -33,4 +33,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             docker pull  ${{ secrets.DOCKER_USERNAME }}/server
-            docker run -d -p 3000:3000 ${{ secrets.DOCKER_USERNAME }}/server
+            docker run -d -p 1212:1212 ${{ secrets.DOCKER_USERNAME }}/server
