@@ -25,6 +25,9 @@ jobs:
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/server
 
+      - name: Stop Previous Docker image
+        run: docker stop $(docker ps -a -q)
+        
       - name: SSH into remote server
         uses: appleboy/ssh-action@v1.0.3
         with:
