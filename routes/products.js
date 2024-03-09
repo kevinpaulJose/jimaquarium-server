@@ -62,7 +62,7 @@ router.post('/add', async (req, res) => {
 router.get('/all', async (req, res) => {
     try {
       const allProducts = await Product.find(); // Retrieve all products from the database
-      res.status(200).json(allProducts);
+      res.status(200).json({products: allProducts});
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
