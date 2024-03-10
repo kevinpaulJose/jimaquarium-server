@@ -8,7 +8,7 @@ router.post('/add', async (req, res) => {
     try {
       const {
         userId,
-        id,
+        orderId,
         products,
         paymentStatus,
         total,
@@ -18,12 +18,12 @@ router.post('/add', async (req, res) => {
       } = req.body;
   
       // Validate input
-      if (!userId || !id || !products || !Array.isArray(products)) {
+      if (!userId || !orderId || !products || !Array.isArray(products)) {
         return res.status(400).json({ error: 'Invalid input' });
       }
   
       // Check if order with the given ID already exists
-      const existingOrder = await Order.findOne({ id });
+      const existingOrder = await Order.findOne({ orderId });
   
       if (existingOrder) {
         return res.status(409).json({ message: 'Order with the same ID already exists' });
@@ -32,7 +32,7 @@ router.post('/add', async (req, res) => {
       // Create a new order
       const newOrder = new Order({
         userId,
-        id,
+        orderId,
         products,
         paymentStatus,
         total,
@@ -50,15 +50,15 @@ router.post('/add', async (req, res) => {
   });
 router.post('/update', async (req, res) => {
     try {
-      const { id, paymentStatus, status } = req.body;
+      const { orderId, paymentStatus, status } = req.body;
   
       // Validate input
-      if (!id) {
+      if (!orderId) {
         return res.status(400).json({ error: 'Invalid input' });
       }
   
       // Find and update the order
-      const existingOrder = await Order.findOne({ id });
+      const existingOrder = await Order.findOne({ orderId });
   
       if (!existingOrder) {
         return res.status(404).json({ message: 'Order not found' });
