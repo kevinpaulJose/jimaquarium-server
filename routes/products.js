@@ -61,7 +61,7 @@ router.post('/add', async (req, res) => {
 
 router.get('/all', async (req, res) => {
     try {
-      const allProducts = await Product.find().sort('-productId'); // Retrieve all products from the database
+      const allProducts = await Product.find().sort({"productId": -1}); // Retrieve all products from the database
       res.status(200).json({products: allProducts});
     } catch (error) {
       res.status(500).json({ error: error.message });

@@ -88,7 +88,7 @@ router.post('/update', async (req, res) => {
       }
   
       // Find orders by userId
-      const userOrders = await Order.find({ userId }).sort('-orderId');
+      const userOrders = await Order.find({ userId }).sort({'orderId': -1});
   
       return res.status(200).json({ orders: userOrders });
     } catch (error) {
