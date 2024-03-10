@@ -71,7 +71,7 @@ router.get('/all', async (req, res) => {
   router.post('/delete', async (req, res) => {
     try {
       const { productId } = req.body; // Get the product ID from the request body
-      const result = await Product.findByIdAndDelete(productId);
+      const result = await Product.deleteOne({productId: productId})
   
       if (result) {
         res.status(200).send({ message: 'Product deleted successfully', deletedProduct: result });
