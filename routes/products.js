@@ -7,7 +7,7 @@ const Product = require('../models/Product'); // Import the Product model
 router.post('/add', async (req, res) => {
   try {
     const {
-      id,
+      productId,
       name,
       price,
       description,
@@ -19,12 +19,12 @@ router.post('/add', async (req, res) => {
     } = req.body;
 
     // Validate input
-    if (!id || !name || !price || !stock || !img) {
+    if (!productId || !name || !price || !stock || !img) {
       return res.status(400).json({ error: 'Invalid input' });
     }
 
     // Check if product with the given ID exists
-    const existingProduct = await Product.findOne({ id });
+    const existingProduct = await Product.findOne({ productId });
 
     if (existingProduct) {
       // Update existing product
@@ -40,7 +40,7 @@ router.post('/add', async (req, res) => {
     } else {
       // Create new product
       const newProduct = new Product({
-        id,
+        productId,
         name,
         price,
         description,
@@ -70,7 +70,7 @@ router.get('/all', async (req, res) => {
 
   router.post('/delete', async (req, res) => {
     try {
-      const { id } = req.body; // Get the product ID from the request body
+      const { productId } = req.body; // Get the product ID from the request body
       const result = await Product.findByIdAndDelete(id);
   
       if (result) {
