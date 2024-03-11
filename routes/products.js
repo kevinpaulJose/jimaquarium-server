@@ -10,7 +10,7 @@ router.post('/add', async (req, res) => {
       productId,
       name,
       price,
-      description,
+      desc,
       theme,
       size,
       categories,
@@ -30,7 +30,7 @@ router.post('/add', async (req, res) => {
       // Update existing product
       existingProduct.name = name;
       existingProduct.price = price;
-      existingProduct.description = description;
+      existingProduct.desc = desc;
       existingProduct.theme = theme;
       existingProduct.size = size;
       existingProduct.categories = categories;
@@ -43,7 +43,7 @@ router.post('/add', async (req, res) => {
         productId,
         name,
         price,
-        description,
+        desc,
         theme,
         size,
         categories,

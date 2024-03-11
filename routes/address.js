@@ -29,7 +29,7 @@ router.post('/add', async (req, res) => {
       await newAddress.save();
     }
 
-    return res.status(200).json({ message: 'Address saved successfully' });
+    return res.status(200).json({ message: 'Default Address set successfully' });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

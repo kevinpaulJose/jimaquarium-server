@@ -17,11 +17,11 @@ router.post("/add", async (req, res) => {
 
     // Fetch products from the database based on cart items
     const productIds = cart.map((item) => item.productId);
-    const products = await Product.find({ id: { $in: productIds } });
+    const products = await Product.find({ productId: { $in: productIds } });
 
     // Check stock and update cart
     const updatedCart = cart.map((item) => {
-      const product = products.find((p) => p.id === item.productId);
+      const product = products.find((p) => p.productId === item.productId);
       if (!product) {
         throw new Error(`Product with ID ${item.productId} not found`);
       }
@@ -58,9 +58,9 @@ router.post("/add", async (req, res) => {
     }
 
     if(stockFlag) {
-      return res.status(201).json({ updatedCart });
+      return res.status(201).json({ cart: updatedCart });
     } else {
-      return res.status(200).json({ updatedCart });
+      return res.status(200).json({ cart: updatedCart });
     }
     
   } catch (error) {
@@ -83,7 +83,7 @@ router.post("/get", async (req, res) => {
         .json({ message: "Cart data not found for the user" });
     }
 
-    res.status(200).json(userCart);
+    res.status(200).json({cart: userCart});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
