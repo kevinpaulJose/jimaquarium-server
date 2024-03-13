@@ -10,7 +10,9 @@ const productSchema = new mongoose.Schema({
   size: { type: String },
   categories: { type: String },
   stock: { type: String, required: true },
-  img: { type: String, required: true }, // Store base64 image data
+  img: { type: String, required: true },
+  defaultWeight: {type: String, required: true},
+  bunch: {type: String, required: true}
 });
 
 const Product = mongoose.model('Product', productSchema);

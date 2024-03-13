@@ -16,6 +16,8 @@ router.post('/add', async (req, res) => {
       categories,
       stock,
       img,
+      defaultWeight,
+      bunch
     } = req.body;
 
     // Validate input
@@ -36,6 +38,8 @@ router.post('/add', async (req, res) => {
       existingProduct.categories = categories;
       existingProduct.stock = stock;
       existingProduct.img = img;
+      existingProduct.defaultWeight = defaultWeight;
+      existingProduct.bunch = bunch;
       await existingProduct.save();
     } else {
       // Create new product
@@ -49,6 +53,8 @@ router.post('/add', async (req, res) => {
         categories,
         stock,
         img,
+        defaultWeight,
+        bunch
       });
       await newProduct.save();
     }

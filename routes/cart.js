@@ -22,23 +22,32 @@ router.post("/add", async (req, res) => {
     // Check stock and update cart
     const updatedCart = cart.map((item) => {
       const product = products.find((p) => p.productId === item.productId);
-      if (!product) {
-        throw new Error(`Product with ID ${item.productId} not found`);
+      // if (!product) {
+        // return {
+        //   ...item
+        // }
+      //   throw new Error(`Product with ID ${item.productId} not found`);
+      // }
+      if(product) {
+        if (item.quantity > product.stock) {
+          stockFlag = true;
+          outOfStock = true;
+        }
+        if(outOfStock) {
+          outOfStock = false;
+          return {
+            ...item,
+            quantity: product.stock,
+          };
+        }
+        
+          return {
+            ...item
+          };
       }
-      if (item.quantity > product.stock) {
-        stockFlag = true;
-        outOfStock = true;
-      }
-      if(outOfStock) {
-        outOfStock = false;
-        return {
-          ...item,
-          quantity: product.stock,
-        };
-      }
-      return {
-        ...item
-      };
+
+      
+        
     });
 
     // Update or insert cart data in MongoDB
