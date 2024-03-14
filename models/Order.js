@@ -12,6 +12,17 @@ const orderSchema = new mongoose.Schema({
       name: { type: String, required: true },
     },
   ],
+  address: {
+    id: { type: String, required: true },
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    line1: { type: String, required: true },
+    line2: { type: String },
+    city: { type: String, required: true },
+    pin: { type: String, required: true },
+    state: { type: String, required: true },
+    default: { type: Boolean }
+},
   paymentStatus: { type: String, required: true },
   total: { type: String, required: true },
   status: { type: String, required: true },
