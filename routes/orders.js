@@ -122,7 +122,8 @@ router.route("/exec").post(function (req, res) {
         customer_phone: req.body.phone,
       },
       order_meta: {
-        return_url: `http://localhost:3000/orders/{order_id}/{order_token}`,
+        return_url: `https://jimaquarium.com`,
+        // return_url: `http://localhost:3000`,
       },
       order_id: req.body.order_id,
       order_amount: req.body.amount,
