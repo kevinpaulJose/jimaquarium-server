@@ -16,7 +16,8 @@ router.post("/add", async (req, res) => {
       status,
       shipping,
       box,
-      address
+      address,
+      paymentLink
     } = req.body;
 
     // Validate input
@@ -43,7 +44,8 @@ router.post("/add", async (req, res) => {
       status,
       shipping,
       box,
-      address
+      address,
+      paymentLink
     });
 
     await newOrder.save();
@@ -138,18 +140,18 @@ router.route("/exec").post(function (req, res) {
           data: response.data,
         });
       } else {
-        res.send({ message: "failed", code: 400 });
+        res.send({ message: "failed", code: 400, err: "Something webt wrong" });
       }
     })
     .catch((err) => {
-      res.send({ message: "failed", code: 400 });
+      res.send({ message: "failed", code: 400, err: err });
     });
 });
 
 router.route("/status").post(function (req, res) {
   const options = {
     method: "GET",
-    url: `https://sandbox.cashfree.com/pg/orders/${req.body.order_id}`,
+    url: `https://sandbox.cashfree.com/pg/orders/${req.body.order_id}/payments`,
     headers: {
       accept: "application/json",
       "x-client-id": "TEST10149202095f693cd23ea188989f20294101",
@@ -177,6 +179,7 @@ router.route("/status").post(function (req, res) {
       res.send({
         data: "Something went wrong",
         code: 400,
+        err: err
       });
     });
 });

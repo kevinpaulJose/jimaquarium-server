@@ -28,6 +28,7 @@ const orderSchema = new mongoose.Schema({
   status: { type: String, required: true },
   shipping: { type: String, required: true },
   box: { type: Boolean, required: true },
+  paymentLink: {type: String}
 });
 
 const Order = mongoose.model('Order', orderSchema);
