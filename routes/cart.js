@@ -29,7 +29,8 @@ router.post("/add", async (req, res) => {
       //   throw new Error(`Product with ID ${item.productId} not found`);
       // }
       if(product) {
-        if (item.quantity > product.stock) {
+        if (parseInt(item.quantity) > parseInt(product.stock)) {
+          console.log(item.quantity, product.stock);
           stockFlag = true;
           outOfStock = true;
         }
