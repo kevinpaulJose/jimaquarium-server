@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
+const cron = require('node-cron');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -12,6 +13,7 @@ var cartRouter = require('./routes/cart');
 var addressRouter = require('./routes/address');
 var ordersRouter = require('./routes/orders');
 const connectDB = require('./db/db');
+const orderJob = require('./functions/appFunctions')
 
 var app = express();
 
@@ -44,6 +46,8 @@ app.use('/api/orders', ordersRouter);
 app.use(function(req, res, next) {
   next(createError(404));
 });
+
+cron.schedule('0 0 * * *', orderJob);
 
 // error handler
 app.use(function(err, req, res, next) {

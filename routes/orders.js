@@ -17,7 +17,8 @@ router.post("/add", async (req, res) => {
       shipping,
       box,
       address,
-      paymentLink
+      paymentLink,
+      tracking
     } = req.body;
 
     // Validate input
@@ -45,7 +46,8 @@ router.post("/add", async (req, res) => {
       shipping,
       box,
       address,
-      paymentLink
+      paymentLink,
+      tracking
     });
 
     await newOrder.save();
@@ -57,7 +59,7 @@ router.post("/add", async (req, res) => {
 });
 router.post("/update", async (req, res) => {
   try {
-    const { orderId, paymentStatus, status } = req.body;
+    const { orderId, paymentStatus, status, tracking } = req.body;
 
     // Validate input
     if (!orderId) {
@@ -75,6 +77,9 @@ router.post("/update", async (req, res) => {
     }
     if (status) {
       existingOrder.status = status;
+    }
+    if(tracking) {
+      existingOrder.tracking = tracking
     }
 
     await existingOrder.save();
@@ -122,8 +127,8 @@ router.route("/exec").post(function (req, res) {
         customer_phone: req.body.phone,
       },
       order_meta: {
-        return_url: `https://jimaquarium.com`,
-        // return_url: `http://localhost:3000`,
+        // return_url: `https://jimaquarium.com`,
+        return_url: `http://localhost:3000`,
       },
       order_id: req.body.order_id,
       order_amount: req.body.amount,
