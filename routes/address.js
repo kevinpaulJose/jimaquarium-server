@@ -36,25 +36,46 @@ router.post('/add', async (req, res) => {
 });
 
 router.post('/get', async (req, res) => {
-    try {
-      const { userId } = req.body;
-  
-      // Validate input
-      if (!userId) {
-        return res.status(400).json({ error: 'Invalid input' });
-      }
-  
-      // Find address by userId
-      const userAddress = await Address.findOne({ userId });
-  
-      if (!userAddress) {
-        return res.status(200).json({ address: [] });
-      }
-  
-      return res.status(200).json({ address: userAddress.address });
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
+  try {
+    const { userId } = req.body;
+
+    // Validate input
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid input' });
     }
-  });
+
+    // Find address by userId
+    const userAddress = await Address.findOne({ userId });
+
+    if (!userAddress) {
+      return res.status(200).json({ address: [] });
+    }
+
+    return res.status(200).json({ address: userAddress.address });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/geter', async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Validate input
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    // Find address by userId
+    const randomDecimal = Math.random();
+    const scaledNumber = Math.floor(randomDecimal * 3000);
+    setTimeout(() => {
+      return res.status(200).json({ address: [] });
+    }, scaledNumber)
+
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 module.exports = router;

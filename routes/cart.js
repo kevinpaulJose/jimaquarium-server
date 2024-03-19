@@ -99,4 +99,25 @@ router.post("/get", async (req, res) => {
   }
 });
 
+router.post('/geter', async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Validate input
+    if (!userId) {
+      return res.status(400).json({ error: 'Invalid input' });
+    }
+
+    const randomDecimal = Math.random();
+    const scaledNumber = Math.floor(randomDecimal * 3000);
+    // Find address by userId
+      setTimeout(() => {
+        return res.status(200).json({ cart: [] });
+      }, scaledNumber)
+      
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;

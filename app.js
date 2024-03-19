@@ -12,8 +12,10 @@ var productRouter = require('./routes/products');
 var cartRouter = require('./routes/cart');
 var addressRouter = require('./routes/address');
 var ordersRouter = require('./routes/orders');
+var emailRouter = require('./routes/email');
 const connectDB = require('./db/db');
-const orderJob = require('./functions/appFunctions')
+const orderJob = require('./functions/appFunctions');
+const heartbeat = require('./functions/heartBeat');
 
 var app = express();
 
@@ -41,6 +43,7 @@ app.use('/api/products', productRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/address', addressRouter);
 app.use('/api/orders', ordersRouter);
+app.use('/api/email', emailRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -48,6 +51,7 @@ app.use(function(req, res, next) {
 });
 
 cron.schedule('0 0 * * *', orderJob);
+// cron.schedule('*/5 * * * * *', heartbeat);
 
 // error handler
 app.use(function(err, req, res, next) {

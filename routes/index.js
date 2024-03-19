@@ -10,6 +10,10 @@ router.get('/pulse', function(req, res, next) {
   res.status(200).send({status: "working"})
 });
 
+router.get('/getOrderDetails', function(req, res, next) {
+  res.status(200).send({order: "Order Placed"})
+});
+
 router.get('/runPulse', function(req, res, next) {
   let intervalId = null; // This will hold the reference to the interval
   let count = 0;
