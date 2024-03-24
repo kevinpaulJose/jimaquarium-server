@@ -50,7 +50,7 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
-cron.schedule('0 0 * * *', orderJob);
+// cron.schedule('0 0 * * *', orderJob);
 cron.schedule('*/5 * * * * *', heartbeat);
 
 // error handler

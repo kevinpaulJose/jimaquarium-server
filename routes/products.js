@@ -40,6 +40,7 @@ router.post('/add', async (req, res) => {
       existingProduct.img = img;
       existingProduct.defaultWeight = defaultWeight;
       existingProduct.bunch = bunch;
+      existingProduct.updated = parseInt(stock) !== 0 ? Date.now() : existingProduct.updated
       await existingProduct.save();
     } else {
       // Create new product
@@ -54,7 +55,8 @@ router.post('/add', async (req, res) => {
         stock,
         img,
         defaultWeight,
-        bunch
+        bunch,
+        updated: Date.now()
       });
       await newProduct.save();
     }
@@ -67,7 +69,7 @@ router.post('/add', async (req, res) => {
 
 router.get('/all', async (req, res) => {
     try {
-      const allProducts = await Product.find().sort({"productId": -1}); // Retrieve all products from the database
+      const allProducts = await Product.find().sort({"updated": -1}); // Retrieve all products from the database
       res.status(200).json({products: allProducts});
     } catch (error) {
       res.status(500).json({ error: error.message });

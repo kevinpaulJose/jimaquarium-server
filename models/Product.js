@@ -12,7 +12,8 @@ const productSchema = new mongoose.Schema({
   stock: { type: String, required: true },
   img: { type: String, required: true },
   defaultWeight: {type: String, required: true},
-  bunch: {type: String, required: true}
+  bunch: {type: String, required: true},
+  updated: {type: Date, default: Date.now}
 });
 
 const Product = mongoose.model('Product', productSchema);

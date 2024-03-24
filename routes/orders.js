@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 const Order = require("../models/Order"); // Adjust the path to your Order model
 const axios = require("axios");
+const Product = require("../models/Product");
 
 // POST route to create an order
 router.post("/add", async (req, res) => {
@@ -18,7 +19,7 @@ router.post("/add", async (req, res) => {
       box,
       address,
       paymentLink,
-      tracking
+      tracking,
     } = req.body;
 
     // Validate input
@@ -47,7 +48,7 @@ router.post("/add", async (req, res) => {
       box,
       address,
       paymentLink,
-      tracking
+      tracking,
     });
 
     await newOrder.save();
@@ -78,11 +79,38 @@ router.post("/update", async (req, res) => {
     if (status) {
       existingOrder.status = status;
     }
-    if(tracking) {
-      existingOrder.tracking = tracking
+    if (tracking) {
+      existingOrder.tracking = tracking;
     }
 
     await existingOrder.save();
+    if (paymentStatus) {
+      if (paymentStatus === "Paid") {
+        const productIds = existingOrder.products.map((product) => ({
+          productId: product.id,
+          quantity: product.quantity,
+        }));
+        productIds.map(async (productId) => {
+          const existingProduct = await Product.findOne({
+            productId: productId.id,
+          });
+
+          if (existingProduct) {
+            // Update existing product
+            let updatedStock =
+              parseInt(existingProduct.stock) - parseInt(productId.quantity);
+            if(updatedStock < 0) {
+              return res.status(400).json({ message: "Products out of Stock" });
+            } else {
+              existingProduct.stock = updatedStock;
+              await existingProduct.save();
+            }
+
+           
+          }
+        });
+      }
+    }
 
     return res.status(200).json({ message: "Order updated successfully" });
   } catch (error) {
@@ -108,22 +136,21 @@ router.post("/get", async (req, res) => {
   }
 });
 
-router.post('/geter', async (req, res) => {
+router.post("/geter", async (req, res) => {
   try {
     const { userId } = req.body;
 
     // Validate input
     if (!userId) {
-      return res.status(400).json({ error: 'Invalid input' });
+      return res.status(400).json({ error: "Invalid input" });
     }
 
     const randomDecimal = Math.random();
     const scaledNumber = Math.floor(randomDecimal * 3000);
     // Find address by userId
-      setTimeout(() => {
-        return res.status(200).json({ orders: [] });
-      }, scaledNumber)
-      
+    setTimeout(() => {
+      return res.status(200).json({ orders: [] });
+    }, scaledNumber);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -206,7 +233,7 @@ router.route("/status").post(function (req, res) {
       res.send({
         data: "Something went wrong",
         code: 400,
-        err: err
+        err: err,
       });
     });
 });
