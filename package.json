@@ -17,6 +17,7 @@
     "mongoose": "^8.2.1",
     "morgan": "~1.9.1",
     "node-cron": "^3.0.3",
-    "nodemailer": "^6.9.12"
+    "nodemailer": "^6.9.12",
+    "xlsx": "^0.18.5"
   }
 }
