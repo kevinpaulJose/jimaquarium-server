@@ -99,14 +99,12 @@ router.post("/update", async (req, res) => {
             // Update existing product
             let updatedStock =
               parseInt(existingProduct.stock) - parseInt(productId.quantity);
-            if(updatedStock < 0) {
+            if (updatedStock < 0) {
               return res.status(400).json({ message: "Products out of Stock" });
             } else {
               existingProduct.stock = updatedStock;
               await existingProduct.save();
             }
-
-           
           }
         });
       }
@@ -236,6 +234,140 @@ router.route("/status").post(function (req, res) {
         err: err,
       });
     });
+});
+
+router.route("/setToken").post(async function (req, res) {
+  try {
+    const oauth2Client = new google.auth.OAuth2(
+      clientId,
+      clientSecret,
+      redirectUri
+    );
+    const tokenPath = "token.json";
+    const { tokens } = await oauth2Client.getToken(req.data.code);
+    await fs.promises.writeFile(tokenPath, JSON.stringify(tokens));
+    console.log("Token stored to", tokenPath);
+    res.send({
+      message: "Token set successfully",
+      code: 200,
+    });
+  } catch (e) {
+    res.send({
+      message: "Token send failed",
+      code: 200,
+      error: e,
+    });
+  }
+});
+
+const { google } = require("googleapis");
+const fs = require("fs");
+const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
+router.route("/status_email").post(async function (req, res) {
+  // Replace with your credentials
+  const clientId =
+    "357833561847-4io9ge4sg1g0sgcoh1tmh0v95b5uv65n.apps.googleusercontent.com";
+  const clientSecret = "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";
+  const redirectUri = "https://jimaquarium.com"; // Update for your redirect URI
+
+  const oauth2Client = new google.auth.OAuth2(
+    clientId,
+    clientSecret,
+    redirectUri
+  );
+
+  // Check if token file exists
+  const tokenPath = "token.json";
+  try {
+    const content = await fs.promises.readFile(tokenPath);
+    oauth2Client.setCredentials(JSON.parse(content));
+  } catch (err) {
+    // const authUrl = oauth2Client.generateAuthUrl({
+    //   access_type: 'offline',
+    //   scope: SCOPES,
+    // });
+    // console.log('Authorize this app by visiting this url:', authUrl);
+    res.send({
+      status: "No Creds set",
+      code: 200,
+      error: err,
+    });
+
+    //  const code = await new Promise((resolve) => {
+    //    const readline = require('readline').createInterface({
+    //      input: process.stdin,
+    //      output: process.stdout,
+    //    });
+    //    readline.question('Enter the code from that page here: ', (code) => {
+    //      resolve(code);
+    //      readline.close();
+    //    });
+    //  });
+    //  const { tokens } = await oauth2Client.getToken(code);
+    //  // Store the tokens to disk
+    //  await fs.promises.writeFile(tokenPath, JSON.stringify(tokens));
+    //  console.log('Token stored to', tokenPath);
+  }
+  try {
+    const gmail = google.gmail({ version: "v1", auth: oauth2Client });
+
+    const listLabels = await gmail.users.labels.list({
+      userId: "me",
+    });
+    console.log("Labels:", listLabels.data.labels);
+
+    const listMessages = await gmail.users.messages.list({
+      userId: "me",
+      labelIds: ["INBOX"], // Update for desired label
+      // q: `subject: *"${keyword}*`,
+    });
+
+    let messageIds = listMessages.data.messages
+      ? listMessages.data.messages
+      : [];
+
+    if (messageIds.length) {
+      messageIds = messageIds.slice(0, 5);
+      console.log("Messages:");
+      let hasValue = false;
+      for (const id of messageIds) {
+        const message = await gmail.users.messages.get({
+          userId: "me",
+          id: id.id,
+        });
+        console.log(
+          ` - ${
+            message.data.payload.headers.find((h) => h.name === "Subject").value
+          }`
+        );
+        hasValue = message.data.payload.headers
+          .find((h) => h.name === "Subject")
+          .value?.includes(req.body.amount);
+      }
+      if (hasValue) {
+        res.send({
+          status: "Payment Successful",
+          code: 200,
+        });
+      } else {
+        res.send({
+          status: "Pending",
+          code: 200,
+        });
+      }
+    } else {
+      res.send({
+        status: "Pending",
+        code: 200,
+      });
+    }
+  } catch (e) {
+    res.send({
+      status: "No Creds set",
+      code: 200,
+      error: e,
+    });
+  }
 });
 
 module.exports = router;
