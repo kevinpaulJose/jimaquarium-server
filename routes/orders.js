@@ -69,7 +69,7 @@ router.post("/update", async (req, res) => {
 
     // Find and update the order
     const existingOrder = await Order.findOne({ orderId });
-
+    const existimePayment = existingOrder.paymentStatus;
     if (!existingOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -82,37 +82,66 @@ router.post("/update", async (req, res) => {
     if (tracking) {
       existingOrder.tracking = tracking;
     }
-
+    const outOfStockProducts = [];
     await existingOrder.save();
-    if (paymentStatus) {
-      if (paymentStatus === "Paid") {
-        const productIds = existingOrder.products.map((product) => ({
-          productId: product.id,
-          quantity: product.quantity,
-        }));
-        productIds.map(async (productId) => {
-          const existingProduct = await Product.findOne({
-            productId: productId.id,
-          });
-
-          if (existingProduct) {
-            // Update existing product
-            let updatedStock =
-              parseInt(existingProduct.stock) - parseInt(productId.quantity);
-            if (updatedStock < 0) {
-              return res.status(400).json({ message: "Products out of Stock" });
-            } else {
-              existingProduct.stock = updatedStock;
-              await existingProduct.save();
+    try {
+      if (paymentStatus) {
+        console.log(paymentStatus, existimePayment);
+        if (paymentStatus === "Paid" && existimePayment !== "Paid") {
+          const productIds = existingOrder.products.map((product) => ({
+            productId: product.id,
+            quantity: product.quantity,
+          }));
+          for(let productId in productIds) {
+            
+            const existingProduct = await Product.findOne({
+              productId: productIds[productId].productId,
+            });
+            console.log(productId);
+            if (existingProduct) {
+              // Update existing product
+              let updatedStock =
+                parseInt(existingProduct.stock) -
+                parseInt(productIds[productId].quantity);
+              console.log("Updated stock - " + updatedStock);
+              if (updatedStock < 0) {
+                existingOrder.paymentStatus = existimePayment;
+                await existingOrder.save();
+                return res
+                  .status(200)
+                  .json({ message: "Products are out of Stock" });
+                // outOfStockProducts.push(productId);
+              } else {
+                existingProduct.stock = updatedStock;
+                await existingProduct.save();
+              }
             }
           }
-        });
+          // await Promise.all(
+          //   productIds.map(async (productId) => {
+              
+          //   })
+          // );
+        }
+        return res.status(200).json({ message: "Order updated successfully" });
+      } else {
+        return res.status(200).json({ message: "Order updated successfully" });
       }
+      //   if (outOfStockProducts.length > 0) {
+      //     return res.status(400).json({
+      //         message: "The following products are out of stock:",
+      //         products: outOfStockProducts
+      //     });
+      // } else {
+     
+      // }
+    } catch (e) {
+      console.log(e);
+      // return res.status(500).json({ error: error.message });
     }
-
-    return res.status(200).json({ message: "Order updated successfully" });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.log(error);
+    // return res.status(500).json({ error: error.message });
   }
 });
 
@@ -125,8 +154,13 @@ router.post("/get", async (req, res) => {
       return res.status(400).json({ error: "Invalid input" });
     }
 
+    let userOrders = [];
     // Find orders by userId
-    const userOrders = await Order.find({ userId }).sort({ orderId: -1 });
+    if (userId === "bkevin1999@gmail.com") {
+      userOrders = await Order.find().sort({ orderId: -1 });
+    } else {
+      userOrders = await Order.find({ userId }).sort({ orderId: -1 });
+    }
 
     return res.status(200).json({ orders: userOrders });
   } catch (error) {
@@ -235,7 +269,9 @@ router.route("/status").post(function (req, res) {
       });
     });
 });
-
+const { google } = require("googleapis");
+const fs = require("fs");
+const SCOPES = ["https://mail.google.com/"];
 router.route("/setToken").post(async function (req, res) {
   try {
     const oauth2Client = new google.auth.OAuth2(
@@ -259,10 +295,36 @@ router.route("/setToken").post(async function (req, res) {
     });
   }
 });
+router.route("/generateToken").post(async function (req, res) {
+  const clientId =
+    "357833561847-4io9ge4sg1g0sgcoh1tmh0v95b5uv65n.apps.googleusercontent.com";
+  const clientSecret = "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";
+  const redirectUri = "https://jimaquarium.com/admin/token"; // Update for your redirect URI
 
-const { google } = require("googleapis");
-const fs = require("fs");
-const SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"];
+  const oauth2Client = new google.auth.OAuth2(
+    clientId,
+    clientSecret,
+    redirectUri
+  );
+  try {
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: "offline",
+      scope: SCOPES,
+    });
+    res.send({
+      message: "URL Generated",
+      code: 200,
+      url: authUrl,
+    });
+  } catch (e) {
+    res.send({
+      message: "Token generation failed",
+      code: 200,
+      error: e,
+    });
+  }
+});
+
 router.route("/status_email").post(async function (req, res) {
   // Replace with your credentials
   const clientId =

@@ -51,7 +51,7 @@ app.use(function(req, res, next) {
 });
 
 // cron.schedule('0 0 * * *', orderJob);
-// cron.schedule('*/5 * * * * *', heartbeat);
+cron.schedule('*/5 * * * * *', heartbeat);
 
 // error handler
 app.use(function(err, req, res, next) {
