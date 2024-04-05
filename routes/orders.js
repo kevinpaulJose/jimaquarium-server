@@ -274,13 +274,17 @@ const fs = require("fs");
 const SCOPES = ["https://mail.google.com/"];
 router.route("/setToken").post(async function (req, res) {
   try {
+    const clientId =
+    "357833561847-4io9ge4sg1g0sgcoh1tmh0v95b5uv65n.apps.googleusercontent.com";
+  const clientSecret = "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";
+  const redirectUri = "https://jimaquarium.com/token"; // Update for your redirect URI
     const oauth2Client = new google.auth.OAuth2(
       clientId,
       clientSecret,
       redirectUri
     );
     const tokenPath = "token.json";
-    const { tokens } = await oauth2Client.getToken(req.data.code);
+    const { tokens } = await oauth2Client.getToken(req.body.code);
     await fs.promises.writeFile(tokenPath, JSON.stringify(tokens));
     console.log("Token stored to", tokenPath);
     res.send({
@@ -288,6 +292,7 @@ router.route("/setToken").post(async function (req, res) {
       code: 200,
     });
   } catch (e) {
+    console.log(e);
     res.send({
       message: "Token send failed",
       code: 200,
@@ -295,11 +300,11 @@ router.route("/setToken").post(async function (req, res) {
     });
   }
 });
-router.route("/generateToken").post(async function (req, res) {
+router.route("/generateToken").get(async function (req, res) {
   const clientId =
     "357833561847-4io9ge4sg1g0sgcoh1tmh0v95b5uv65n.apps.googleusercontent.com";
   const clientSecret = "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";
-  const redirectUri = "https://jimaquarium.com/admin/token"; // Update for your redirect URI
+  const redirectUri = "https://jimaquarium.com/token"; // Update for your redirect URI
 
   const oauth2Client = new google.auth.OAuth2(
     clientId,
@@ -311,6 +316,7 @@ router.route("/generateToken").post(async function (req, res) {
       access_type: "offline",
       scope: SCOPES,
     });
+    console.log(authUrl);
     res.send({
       message: "URL Generated",
       code: 200,
@@ -350,7 +356,7 @@ router.route("/status_email").post(async function (req, res) {
     // });
     // console.log('Authorize this app by visiting this url:', authUrl);
     res.send({
-      status: "No Creds set",
+      message: "No Creds set",
       code: 200,
       error: err,
     });
@@ -397,35 +403,35 @@ router.route("/status_email").post(async function (req, res) {
           userId: "me",
           id: id.id,
         });
+        const subject = message.data.payload.headers.find((h) => h.name === "Subject").value;
         console.log(
           ` - ${
-            message.data.payload.headers.find((h) => h.name === "Subject").value
-          }`
+            subject
+          } - ${req.body.amount}`
         );
-        hasValue = message.data.payload.headers
-          .find((h) => h.name === "Subject")
-          .value?.includes(req.body.amount);
+        hasValue = hasValue ? true :  subject?.includes(req.body.amount);
+        console.log("Hasvalue", hasValue);
       }
       if (hasValue) {
         res.send({
-          status: "Payment Successful",
+          message: "Payment Successful",
           code: 200,
         });
       } else {
         res.send({
-          status: "Pending",
+          message: "Pending",
           code: 200,
         });
       }
     } else {
       res.send({
-        status: "Pending",
+        message: "Pending",
         code: 200,
       });
     }
   } catch (e) {
     res.send({
-      status: "No Creds set",
+      message: "No Creds set",
       code: 200,
       error: e,
     });

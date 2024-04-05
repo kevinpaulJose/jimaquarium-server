@@ -40,7 +40,8 @@ router.post('/add', async (req, res) => {
       existingProduct.img = img;
       existingProduct.defaultWeight = defaultWeight;
       existingProduct.bunch = bunch;
-      existingProduct.updated = parseInt(stock) !== 0 ? Date.now() : existingProduct.updated
+      existingProduct.updated = Date.now()
+      console.log(existingProduct.updated);
       await existingProduct.save();
     } else {
       // Create new product
