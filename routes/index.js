@@ -11,20 +11,15 @@ router.get('/', function (req, res, next) {
 
 router.get('/bulk', function (req, res, next) {
   readExcelToJSON("functions/bulk_product.xlsx", "functions/images")
-    .then((data) => {
-      // console.log(data[0]);
-
-
-
-      data.map(async product => {
+    .then(async (data) => {
+      await Promise.all(data.map(async product => {
         const options = {
           method: "POST",
           url: "http://localhost:1212/api/products/add",
           data: product
         };
         await axios.request(options).then(response => { console.log(response.data); }).catch(e => { console.log(e); });
-      })
-
+      }))
       res.status(200).send({ status: "working" })
     })
     .catch((error) => {

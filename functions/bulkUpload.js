@@ -1,8 +1,9 @@
 const XLSX = require('xlsx');
 const path = require('path');
 const fs = require('fs');
-function readExcelToJSON(filePath, imagePath) {
- return new Promise((resolve, reject) => {
+const shrinkImage = require('./imageShrink');
+async function readExcelToJSON(filePath, imagePath) {
+ return new Promise(async (resolve, reject) => {
    const workbook = XLSX.readFile(filePath);
    const sheetName = workbook.SheetNames[0];
    const worksheet = workbook.Sheets[sheetName];
@@ -11,7 +12,7 @@ function readExcelToJSON(filePath, imagePath) {
      return;
    }
    const data = XLSX.utils.sheet_to_json(worksheet);
-   const jsonData = data.map((row, index) => {
+   const jsonData = await Promise.all(data.map(async (row, index) => {
      const { SNO, FISH, SIZE, RS, COUNT, WEIGHT, CAT } = row;
      const randomPart = Math.floor(Math.random() * 10000); // Random number between 0 and 9999
      const timestamp = Date.now() + randomPart;
@@ -22,8 +23,10 @@ function readExcelToJSON(filePath, imagePath) {
      const imageNumber = index + 1;
      const imagePathFull = path.join(imagePath, `${imageNumber}.jpeg`);
      let imgBase64;
+     let shrinkedImage;
       try {
-        imgBase64 = fs.readFileSync(imagePathFull, 'base64'); // Read image and convert to base64 (wrap in try-catch)
+        imgBase64 = fs.readFileSync(imagePathFull, 'base64');
+        shrinkedImage = await shrinkImage(imgBase64);
       } catch (error) {
         console.log(`Error reading image for row ${index + 1}: ${error.message}`); // Handle potential missing images
         imgBase64 = null; // Set img to null if image is missing
@@ -40,10 +43,10 @@ function readExcelToJSON(filePath, imagePath) {
        size: SIZE.toString(),
        theme: "dark",
        stock: "20",
-       img: `data:image/jpeg;base64,${imgBase64}`,
+       img: shrinkedImage,
        productId: timestamp.toString()
      };
-   });
+   }));
    resolve(jsonData);
  });
 }

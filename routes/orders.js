@@ -4,6 +4,10 @@ const router = express.Router();
 const Order = require("../models/Order"); // Adjust the path to your Order model
 const axios = require("axios");
 const Product = require("../models/Product");
+const Payment = require("../models/Payment");
+const { google } = require("googleapis");
+const fs = require("fs");
+const SCOPES = ["https://mail.google.com/"];
 
 // POST route to create an order
 router.post("/add", async (req, res) => {
@@ -92,8 +96,8 @@ router.post("/update", async (req, res) => {
             productId: product.id,
             quantity: product.quantity,
           }));
-          for(let productId in productIds) {
-            
+          for (let productId in productIds) {
+
             const existingProduct = await Product.findOne({
               productId: productIds[productId].productId,
             });
@@ -103,7 +107,6 @@ router.post("/update", async (req, res) => {
               let updatedStock =
                 parseInt(existingProduct.stock) -
                 parseInt(productIds[productId].quantity);
-              console.log("Updated stock - " + updatedStock);
               if (updatedStock < 0) {
                 existingOrder.paymentStatus = existimePayment;
                 await existingOrder.save();
@@ -113,13 +116,15 @@ router.post("/update", async (req, res) => {
                 // outOfStockProducts.push(productId);
               } else {
                 existingProduct.stock = updatedStock;
+                console.log("Updated stock - " + updatedStock);
+                existingProduct.updated = Date.now();
                 await existingProduct.save();
               }
             }
           }
           // await Promise.all(
           //   productIds.map(async (productId) => {
-              
+
           //   })
           // );
         }
@@ -133,7 +138,7 @@ router.post("/update", async (req, res) => {
       //         products: outOfStockProducts
       //     });
       // } else {
-     
+
       // }
     } catch (e) {
       console.log(e);
@@ -269,15 +274,13 @@ router.route("/status").post(function (req, res) {
       });
     });
 });
-const { google } = require("googleapis");
-const fs = require("fs");
-const SCOPES = ["https://mail.google.com/"];
+
 router.route("/setToken").post(async function (req, res) {
   try {
     const clientId =
-    "357833561847-4io9ge4sg1g0sgcoh1tmh0v95b5uv65n.apps.googleusercontent.com";
-  const clientSecret = "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";
-  const redirectUri = "https://jimaquarium.com/token"; // Update for your redirect URI
+      "357833561847-4io9ge4sg1g0sgcoh1tmh0v95b5uv65n.apps.googleusercontent.com";
+    const clientSecret = "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";
+    const redirectUri = "https://jimaquarium.com/token"; // Update for your redirect URI
     const oauth2Client = new google.auth.OAuth2(
       clientId,
       clientSecret,
@@ -405,11 +408,10 @@ router.route("/status_email").post(async function (req, res) {
         });
         const subject = message.data.payload.headers.find((h) => h.name === "Subject").value;
         console.log(
-          ` - ${
-            subject
+          ` - ${subject
           } - ${req.body.amount}`
         );
-        hasValue = hasValue ? true :  subject?.includes(req.body.amount);
+        hasValue = hasValue ? true : subject?.includes(req.body.amount);
         console.log("Hasvalue", hasValue);
       }
       if (hasValue) {
@@ -437,5 +439,39 @@ router.route("/status_email").post(async function (req, res) {
     });
   }
 });
+
+router.get('/getUniqueID', async (req, res) => {
+  try {
+    const recentEntries = await Payment.find()
+      .sort({ _id: -1 })
+      .limit(24);
+    
+    
+    while(true) {
+      let unique = true;
+      let newCode = Math.floor(Math.random() * 25).toString();
+      recentEntries.map(entry => {
+        console.log(entry.code, "is matched with", newCode);
+        if(entry.code === newCode) {
+          unique = false
+        }
+      });
+      if(unique) {
+        await Payment({ code: newCode }).save();
+        res.json({ code: newCode });
+        break;
+      } 
+    }
+    
+    // while (recentEntries.findIndex(entry => (entry.code === newCode)) >=0 ) {
+    //   newCode = Math.floor(Math.random() * 10);
+    // }
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to generate unique ID' });
+  }
+});
+
 
 module.exports = router;
