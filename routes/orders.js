@@ -65,6 +65,7 @@ router.post("/add", async (req, res) => {
 router.post("/update", async (req, res) => {
   try {
     const { orderId, paymentStatus, status, tracking } = req.body;
+    console.log(req.body)
 
     // Validate input
     if (!orderId) {
@@ -73,7 +74,7 @@ router.post("/update", async (req, res) => {
 
     // Find and update the order
     const existingOrder = await Order.findOne({ orderId });
-    const existimePayment = existingOrder.paymentStatus;
+    const existimePayment = existingOrder?.paymentStatus;
     if (!existingOrder) {
       return res.status(404).json({ message: "Order not found" });
     }
@@ -194,30 +195,47 @@ router.post("/geter", async (req, res) => {
 });
 
 router.route("/exec").post(function (req, res) {
+  // console.log(req.body); const now = new Date();
+  const now = new Date();
+ now.setMinutes(now.getMinutes() + 13);
+//  now.setMinutes(now.getMinutes() + 1);
+//  const offset = now.getTimezoneOffset();
+//  const sign = offset < 0 ? "+" : "-";
+//  const absOffset = Math.abs(offset);
+//  const hours = String(Math.floor(absOffset / 60)).padStart(2, "0");
+//  const minutes = String(absOffset % 60).padStart(2, "0");
+//  const finalTime = `${now.toISOString().slice(0, 19)}${sign}${hours}:${minutes}`;
+// console.log(finalTime);
   const options = {
     method: "POST",
-    url: `https://sandbox.cashfree.com/pg/orders`,
+    url: `https://sandbox.cashfree.com/pg/links`,
+    // url: `https://api.cashfree.com/pg/links`,
     headers: {
       accept: "application/json",
       "x-client-id": "TEST10149202095f693cd23ea188989f20294101",
+      // "x-client-id": "648837e3016086c32ac96fc7fc738846",
       "x-client-secret":
         "cfsk_ma_test_5fdf014335adfec5ea6f0daed5fe727a_d9e59d0c",
-      "x-api-version": "2022-01-01",
+      // "x-client-secret":
+      //   "cfsk_ma_prod_d7af3bd06840368dec08fa8442aa4e0a_48123b3d",
+      "x-api-version": "2023-08-01",
       "content-type": "application/json",
     },
     data: {
       customer_details: {
-        customer_id: req.body.order_id,
+        // customer_id: req.body.order_id,
         customer_email: req.body.email,
         customer_phone: req.body.phone,
       },
-      order_meta: {
-        // return_url: `https://jimaquarium.com`,
-        return_url: `http://localhost:3000`,
+      link_notify: {
+        "send_sms": true,
+        "send_email": true
       },
-      order_id: req.body.order_id,
-      order_amount: req.body.amount,
-      order_currency: "INR",
+      link_id: req.body.order_id,
+      link_amount: req.body.amount,
+      link_currency: "INR",
+      link_purpose: `Payment for order ${req.body.order_id}`,
+      link_expiry_time: now.toISOString()
     },
   };
   axios
@@ -228,13 +246,16 @@ router.route("/exec").post(function (req, res) {
         res.send({
           message: "order added successfully",
           code: 200,
-          data: response.data,
+          data: { amount: response?.data?.link_amount, 
+            status: response?.data?.link_status, 
+            payment_link: response?.data?.link_url },
         });
       } else {
         res.send({ message: "failed", code: 400, err: "Something webt wrong" });
       }
     })
     .catch((err) => {
+      console.log(err);
       res.send({ message: "failed", code: 400, err: err });
     });
 });
@@ -242,13 +263,16 @@ router.route("/exec").post(function (req, res) {
 router.route("/status").post(function (req, res) {
   const options = {
     method: "GET",
-    url: `https://sandbox.cashfree.com/pg/orders/${req.body.order_id}/payments`,
+    url: `https://sandbox.cashfree.com/pg/links/${req.body.order_id}`,
+    // url: `https://api.cashfree.com/pg/links/${req.body.order_id}`,
     headers: {
       accept: "application/json",
       "x-client-id": "TEST10149202095f693cd23ea188989f20294101",
+      // "x-client-id": "648837e3016086c32ac96fc7fc738846",
       "x-client-secret":
         "cfsk_ma_test_5fdf014335adfec5ea6f0daed5fe727a_d9e59d0c",
-      "x-api-version": "2022-01-01",
+      // "x-client-secret": "cfsk_ma_prod_d7af3bd06840368dec08fa8442aa4e0a_48123b3d",
+      "x-api-version": "2023-08-01",
     },
   };
   axios
@@ -445,28 +469,28 @@ router.get('/getUniqueID', async (req, res) => {
     const recentEntries = await Payment.find()
       .sort({ _id: -1 })
       .limit(24);
-    
-    
-    while(true) {
+
+
+    while (true) {
       let unique = true;
       let newCode = Math.floor(Math.random() * 25).toString();
       recentEntries.map(entry => {
         console.log(entry.code, "is matched with", newCode);
-        if(entry.code === newCode) {
+        if (entry.code === newCode) {
           unique = false
         }
       });
-      if(unique) {
+      if (unique) {
         await Payment({ code: newCode }).save();
         res.json({ code: newCode });
         break;
-      } 
+      }
     }
-    
+
     // while (recentEntries.findIndex(entry => (entry.code === newCode)) >=0 ) {
     //   newCode = Math.floor(Math.random() * 10);
     // }
-    
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to generate unique ID' });
