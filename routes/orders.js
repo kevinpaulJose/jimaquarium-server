@@ -197,7 +197,7 @@ router.post("/geter", async (req, res) => {
 router.route("/exec").post(function (req, res) {
   // console.log(req.body); const now = new Date();
   const now = new Date();
- now.setMinutes(now.getMinutes() + 13);
+ now.setMinutes(now.getMinutes() + 8);
 //  now.setMinutes(now.getMinutes() + 1);
 //  const offset = now.getTimezoneOffset();
 //  const sign = offset < 0 ? "+" : "-";
