@@ -65,7 +65,7 @@ router.post("/add", async (req, res) => {
 router.post("/update", async (req, res) => {
   try {
     const { orderId, paymentStatus, status, tracking } = req.body;
-    console.log(req.body)
+    console.log(req.body);
 
     // Validate input
     if (!orderId) {
@@ -98,7 +98,6 @@ router.post("/update", async (req, res) => {
             quantity: product.quantity,
           }));
           for (let productId in productIds) {
-
             const existingProduct = await Product.findOne({
               productId: productIds[productId].productId,
             });
@@ -197,27 +196,27 @@ router.post("/geter", async (req, res) => {
 router.route("/exec").post(function (req, res) {
   // console.log(req.body); const now = new Date();
   const now = new Date();
- now.setMinutes(now.getMinutes() + 8);
-//  now.setMinutes(now.getMinutes() + 1);
-//  const offset = now.getTimezoneOffset();
-//  const sign = offset < 0 ? "+" : "-";
-//  const absOffset = Math.abs(offset);
-//  const hours = String(Math.floor(absOffset / 60)).padStart(2, "0");
-//  const minutes = String(absOffset % 60).padStart(2, "0");
-//  const finalTime = `${now.toISOString().slice(0, 19)}${sign}${hours}:${minutes}`;
-// console.log(finalTime);
+  now.setMinutes(now.getMinutes() + 8);
+  //  now.setMinutes(now.getMinutes() + 1);
+  //  const offset = now.getTimezoneOffset();
+  //  const sign = offset < 0 ? "+" : "-";
+  //  const absOffset = Math.abs(offset);
+  //  const hours = String(Math.floor(absOffset / 60)).padStart(2, "0");
+  //  const minutes = String(absOffset % 60).padStart(2, "0");
+  //  const finalTime = `${now.toISOString().slice(0, 19)}${sign}${hours}:${minutes}`;
+  // console.log(finalTime);
   const options = {
     method: "POST",
-    url: `https://sandbox.cashfree.com/pg/links`,
-    // url: `https://api.cashfree.com/pg/links`,
+    // url: `https://sandbox.cashfree.com/pg/links`,
+    url: `https://api.cashfree.com/pg/links`,
     headers: {
       accept: "application/json",
-      "x-client-id": "TEST10149202095f693cd23ea188989f20294101",
-      // "x-client-id": "648837e3016086c32ac96fc7fc738846",
-      "x-client-secret":
-        "cfsk_ma_test_5fdf014335adfec5ea6f0daed5fe727a_d9e59d0c",
+      // "x-client-id": "TEST10149202095f693cd23ea188989f20294101",
+      "x-client-id": "648837e3016086c32ac96fc7fc738846",
       // "x-client-secret":
-      //   "cfsk_ma_prod_d7af3bd06840368dec08fa8442aa4e0a_48123b3d",
+      //   "cfsk_ma_test_5fdf014335adfec5ea6f0daed5fe727a_d9e59d0c",
+      "x-client-secret":
+        "cfsk_ma_prod_d7af3bd06840368dec08fa8442aa4e0a_48123b3d",
       "x-api-version": "2023-08-01",
       "content-type": "application/json",
     },
@@ -228,14 +227,14 @@ router.route("/exec").post(function (req, res) {
         customer_phone: req.body.phone,
       },
       link_notify: {
-        "send_sms": true,
-        "send_email": true
+        send_sms: true,
+        send_email: true,
       },
       link_id: req.body.order_id,
       link_amount: req.body.amount,
       link_currency: "INR",
       link_purpose: `Payment for order ${req.body.order_id}`,
-      link_expiry_time: now.toISOString()
+      link_expiry_time: now.toISOString(),
     },
   };
   axios
@@ -246,9 +245,11 @@ router.route("/exec").post(function (req, res) {
         res.send({
           message: "order added successfully",
           code: 200,
-          data: { amount: response?.data?.link_amount, 
-            status: response?.data?.link_status, 
-            payment_link: response?.data?.link_url },
+          data: {
+            amount: response?.data?.link_amount,
+            status: response?.data?.link_status,
+            payment_link: response?.data?.link_url,
+          },
         });
       } else {
         res.send({ message: "failed", code: 400, err: "Something webt wrong" });
@@ -263,15 +264,16 @@ router.route("/exec").post(function (req, res) {
 router.route("/status").post(function (req, res) {
   const options = {
     method: "GET",
-    url: `https://sandbox.cashfree.com/pg/links/${req.body.order_id}`,
-    // url: `https://api.cashfree.com/pg/links/${req.body.order_id}`,
+    // url: `https://sandbox.cashfree.com/pg/links/${req.body.order_id}`,
+    url: `https://api.cashfree.com/pg/links/${req.body.order_id}`,
     headers: {
       accept: "application/json",
-      "x-client-id": "TEST10149202095f693cd23ea188989f20294101",
-      // "x-client-id": "648837e3016086c32ac96fc7fc738846",
+      // "x-client-id": "TEST10149202095f693cd23ea188989f20294101",
+      "x-client-id": "648837e3016086c32ac96fc7fc738846",
+      // "x-client-secret":
+      //   "cfsk_ma_test_5fdf014335adfec5ea6f0daed5fe727a_d9e59d0c",
       "x-client-secret":
-        "cfsk_ma_test_5fdf014335adfec5ea6f0daed5fe727a_d9e59d0c",
-      // "x-client-secret": "cfsk_ma_prod_d7af3bd06840368dec08fa8442aa4e0a_48123b3d",
+        "cfsk_ma_prod_d7af3bd06840368dec08fa8442aa4e0a_48123b3d",
       "x-api-version": "2023-08-01",
     },
   };
@@ -308,7 +310,7 @@ router.route("/setToken").post(async function (req, res) {
     const oauth2Client = new google.auth.OAuth2(
       clientId,
       clientSecret,
-      redirectUri
+      redirectUri,
     );
     const tokenPath = "token.json";
     const { tokens } = await oauth2Client.getToken(req.body.code);
@@ -336,7 +338,7 @@ router.route("/generateToken").get(async function (req, res) {
   const oauth2Client = new google.auth.OAuth2(
     clientId,
     clientSecret,
-    redirectUri
+    redirectUri,
   );
   try {
     const authUrl = oauth2Client.generateAuthUrl({
@@ -368,7 +370,7 @@ router.route("/status_email").post(async function (req, res) {
   const oauth2Client = new google.auth.OAuth2(
     clientId,
     clientSecret,
-    redirectUri
+    redirectUri,
   );
 
   // Check if token file exists
@@ -430,11 +432,10 @@ router.route("/status_email").post(async function (req, res) {
           userId: "me",
           id: id.id,
         });
-        const subject = message.data.payload.headers.find((h) => h.name === "Subject").value;
-        console.log(
-          ` - ${subject
-          } - ${req.body.amount}`
-        );
+        const subject = message.data.payload.headers.find(
+          (h) => h.name === "Subject",
+        ).value;
+        console.log(` - ${subject} - ${req.body.amount}`);
         hasValue = hasValue ? true : subject?.includes(req.body.amount);
         console.log("Hasvalue", hasValue);
       }
@@ -464,20 +465,17 @@ router.route("/status_email").post(async function (req, res) {
   }
 });
 
-router.get('/getUniqueID', async (req, res) => {
+router.get("/getUniqueID", async (req, res) => {
   try {
-    const recentEntries = await Payment.find()
-      .sort({ _id: -1 })
-      .limit(24);
-
+    const recentEntries = await Payment.find().sort({ _id: -1 }).limit(24);
 
     while (true) {
       let unique = true;
       let newCode = Math.floor(Math.random() * 25).toString();
-      recentEntries.map(entry => {
+      recentEntries.map((entry) => {
         console.log(entry.code, "is matched with", newCode);
         if (entry.code === newCode) {
-          unique = false
+          unique = false;
         }
       });
       if (unique) {
@@ -490,12 +488,10 @@ router.get('/getUniqueID', async (req, res) => {
     // while (recentEntries.findIndex(entry => (entry.code === newCode)) >=0 ) {
     //   newCode = Math.floor(Math.random() * 10);
     // }
-
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Failed to generate unique ID' });
+    res.status(500).json({ error: "Failed to generate unique ID" });
   }
 });
-
 
 module.exports = router;
