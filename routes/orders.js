@@ -53,6 +53,7 @@ router.post("/add", async (req, res) => {
       address,
       paymentLink,
       tracking,
+      updated: Date.now()
     });
 
     await newOrder.save();

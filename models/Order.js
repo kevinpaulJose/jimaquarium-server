@@ -30,6 +30,7 @@ const orderSchema = new mongoose.Schema({
   box: { type: Boolean, required: true },
   paymentLink: {type: String},
   tracking: {type: String},
+  updated: {type: Date, default: Date.now}
 });
 
 const Order = mongoose.model('Order', orderSchema);
