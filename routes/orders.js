@@ -53,7 +53,7 @@ router.post("/add", async (req, res) => {
       address,
       paymentLink,
       tracking,
-      updated: Date.now()
+      updated: Date.now(),
     });
 
     await newOrder.save();
@@ -162,7 +162,10 @@ router.post("/get", async (req, res) => {
 
     let userOrders = [];
     // Find orders by userId
-    if (userId === "bkevin1999@gmail.com") {
+    if (
+      userId === "bkevin1999@gmail.com" ||
+      userId === "ranjithkingjimson7788@gmail.com"
+    ) {
       userOrders = await Order.find().sort({ orderId: -1 });
     } else {
       userOrders = await Order.find({ userId }).sort({ orderId: -1 });
