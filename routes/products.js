@@ -17,7 +17,8 @@ router.post('/add', async (req, res) => {
       stock,
       img,
       defaultWeight,
-      bunch
+      bunch,
+      box
     } = req.body;
 
     // Validate input
@@ -40,7 +41,8 @@ router.post('/add', async (req, res) => {
       existingProduct.img = img;
       existingProduct.defaultWeight = defaultWeight;
       existingProduct.bunch = bunch;
-      existingProduct.updated = Date.now()
+      existingProduct.updated = Date.now(),
+      existingProduct.box = box
       console.log(existingProduct.updated);
       await existingProduct.save();
     } else {
@@ -57,7 +59,8 @@ router.post('/add', async (req, res) => {
         img,
         defaultWeight,
         bunch,
-        updated: Date.now()
+        updated: Date.now(),
+        box
       });
       await newProduct.save();
     }

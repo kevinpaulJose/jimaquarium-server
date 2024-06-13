@@ -13,7 +13,8 @@ const productSchema = new mongoose.Schema({
   img: { type: String, required: true },
   defaultWeight: {type: String, required: true},
   bunch: {type: String, required: true},
-  updated: {type: Date, default: Date.now}
+  updated: {type: Date, default: Date.now},
+  box: {type: String, required: false}
 });
 
 const Product = mongoose.model('Product', productSchema);

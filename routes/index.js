@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const axios = require('axios');
 const readExcelToJSON = require('../functions/bulkUpload');
+const Product = require('../models/Product');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -30,6 +31,17 @@ router.get('/bulk', function (req, res, next) {
 
 router.get('/pulse', function (req, res, next) {
   res.status(200).send({ status: "working" })
+});
+
+router.get('/setBox', async function (req, res, next) {
+  try {
+    await Product.updateMany({}, {box: "no"})
+    res.status(200).send({ status: "working" })
+  } catch(e) {
+    res.status(500).send({ status: "error", message: e })
+  }
+  
+  
 });
 
 router.get('/getOrderDetails', function (req, res, next) {
